@@ -1,10 +1,48 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from models import User
 from models import userResponse
+from models import feedbackResponce
+from models import feedback
+from datetime import datetime
 
 app = FastAPI()
+
+feedbackStorage = []
+feedbackCounter = 0
+
+@app.post("/feedback", response_model=feedbackResponce)
+async def createFeedback(feedback: feedback):
+    global feedbackCounter
+    
+    if not feedback.name.strip():
+        raise HTTPException(status_code=400, detail="Имя не может быть пустым")
+    
+    if not feedback.message.strip():
+        raise HTTPException(status_code=400, detail="Сообщение не может быть пустым")
+    
+    feedbackCounter += 1
+    feedback_entry = {
+        "id": feedbackCounter,
+        "name": feedback.name.strip(),
+        "message": feedback.message.strip(),
+        "timestamp": datetime.now().isoformat()
+    }
+    feedbackStorage.append(feedback_entry)
+    
+    # Возвращаем ответ в точности как в схеме: {"message": "string"}
+    return feedbackResponce(
+        message=f"Feedback received. Thank you, {feedback.name}."
+    )
+
+
+
+
+
+
+
+
 
 currentUser = User(
     name = "Alexandra Vasyukova",
