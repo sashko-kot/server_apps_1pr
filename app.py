@@ -1,8 +1,18 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from models import User
 
 app = FastAPI()
+
+currentUser = User(
+    name = "Alexandra Vasyukova",
+    id = 1
+)
+
+@app.get("/user")
+async def getUser():
+    return currentUser
 
 class numbers(BaseModel):
     num1: int
