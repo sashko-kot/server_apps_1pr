@@ -2,17 +2,39 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from models import User
+from models import userResponse
 
 app = FastAPI()
 
 currentUser = User(
     name = "Alexandra Vasyukova",
-    id = 1
+    age = 19
 )
 
-@app.get("/user")
+def isAdult(age):
+    return age >= 18
+
+@app.post("/user", response_model=userResponse)
+async def createUser(user: User):
+    is_adult = isAdult(user.age)
+
+    user_response = userResponse(
+        name = user.name,
+        age = user.age,
+        is_adult = is_adult
+    )
+
+    return user_response
+
+
+@app.get("/users")
 async def getUser():
-    return currentUser
+    users = [
+        User(name="Иван Петров", age=25),
+        User(name="Мария Иванова", age=17),
+        User(name="Петр Сидоров", age=30)
+    ]
+    return users
 
 class numbers(BaseModel):
     num1: int
